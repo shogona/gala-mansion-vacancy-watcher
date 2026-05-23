@@ -1,6 +1,6 @@
-name: Vacancy Check
+name: Scheduled Vacancy Check
 
-on:
+"on":
   workflow_dispatch:
   schedule:
     # UTC基準。毎時3・18・33・48分に実行 = 15分ごと
