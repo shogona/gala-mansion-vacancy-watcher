@@ -3,8 +3,8 @@ name: Vacancy Check
 on:
   workflow_dispatch:
   schedule:
-    # UTC基準。毎時7分・37分に実行 = 30分ごと
-    - cron: "7,37 * * * *"
+    # UTC基準。毎時7・22・37・52分に実行 = 15分ごと
+    - cron: "7,22,37,52 * * * *"
 
 permissions:
   contents: write
@@ -12,6 +12,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
 
     steps:
       - name: Checkout repository
