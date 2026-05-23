@@ -1,5 +1,3 @@
-gmail app pass : gjvw qyfe mzdt hhvk
-
 # GALA Vacancy Watcher
 
 GALA賃貸の物件ページを定期チェックし、空室一覧に新しい部屋が出たらメール通知するPythonスクリプトです。

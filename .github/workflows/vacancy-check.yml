@@ -3,8 +3,8 @@ name: Vacancy Check
 on:
   workflow_dispatch:
   schedule:
-    # UTC基準。毎時7・22・37・52分に実行 = 15分ごと
-    - cron: "7,22,37,52 * * * *"
+    # UTC基準。毎時3・18・33・48分に実行 = 15分ごと
+    - cron: "3,18,33,48 * * * *"
 
 permissions:
   contents: write
