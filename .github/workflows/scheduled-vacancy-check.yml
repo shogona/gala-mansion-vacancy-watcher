@@ -2,16 +2,6 @@ name: Scheduled Vacancy Check
 
 "on":
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/scheduled-vacancy-check.yml"
-      - "src/**"
-      - "requirements.txt"
-  schedule:
-    # UTC基準。15分ごとに実行
-    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
