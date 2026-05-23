@@ -10,8 +10,8 @@ name: Scheduled Vacancy Check
       - "src/**"
       - "requirements.txt"
   schedule:
-    # UTC基準。毎時3・18・33・48分に実行 = 15分ごと
-    - cron: "3,18,33,48 * * * *"
+    # UTC基準。15分ごとに実行
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
