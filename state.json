@@ -1,7 +1,6 @@
 {
   "last_room_ids": [
-    "14883",
-    "14875"
+    "14883"
   ],
   "last_rooms": [
     {
@@ -14,18 +13,7 @@
       "deposit": "1ヶ月",
       "key_money": "2ヶ月",
       "detail_url": "https://www.gala-chintai.jp/bukken/?detail=1361&add=14883"
-    },
-    {
-      "room_id": "14875",
-      "floor": "10階",
-      "layout": "1K",
-      "area": "20.11m 2",
-      "rent": "114,000円",
-      "management_fee": "9,000円",
-      "deposit": "1ヶ月",
-      "key_money": "2ヶ月",
-      "detail_url": "https://www.gala-chintai.jp/bukken/?detail=1361&add=14875"
     }
   ],
-  "last_checked_at": "2026-09-22T11:30:29+09:00"
+  "last_checked_at": "2026-09-22T11:45:20+09:00"
 }
