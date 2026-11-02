@@ -22,13 +22,13 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timezone, timedelta
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 # HTTP リクエストを送るライブラリ
 import requests
 # HTML を解析するライブラリ（pip install beautifulsoup4 で導入）
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 
 # ---------- 定数 ----------
@@ -114,6 +114,58 @@ def normalize_text(text: str) -> str:
 
 # ---------- HTML 解析 ----------
 
+def parse_room_row(row: Tag) -> Optional[Room]:
+    """一覧の1行を部屋情報に変換する。リンクや列が不足する行は除外する。"""
+    # 詳細ページへのリンク（href に "add=" を含む <a> タグ）を探す
+    # このリンクが存在しない行は部屋情報ではないとみなしてスキップする
+    detail_link = row.select_one('a[href*="add="]')
+    if detail_link is None:
+        return None
+
+    href = detail_link.get("href")
+    if not href:
+        return None
+
+    # 相対 URL（例: /bukken/?detail=1361&add=14831）を絶対 URL に変換する
+    detail_url = urljoin(BASE_URL, href)
+
+    # 例: /bukken/?detail=1361&add=14831
+    # URL の "add=" 以降の値を room_id として使う（部屋の一意識別子）
+    room_id = detail_url.split("add=")[-1].split("&")[0]
+
+    # 各 <td> のテキストを正規化してリストにする
+    cols = [normalize_text(td.get_text(" ", strip=True)) for td in row.select("td")]
+
+    # 想定カラム:
+    # 0: お気に入り
+    # 1: 画像
+    # 2: 部屋番号など
+    # 3: 階数
+    # 4: 間取り
+    # 5: 面積
+    # 6: 家賃
+    # 7: 管理費
+    # 8: 敷金
+    # 9: 礼金
+    # 10: パノラマ画像
+    # 11: 詳細
+    # カラム数が 10 未満の行はデータ不足とみなしてスキップする
+    if len(cols) < 10:
+        return None
+
+    return Room(
+        room_id=room_id,
+        floor=cols[3],
+        layout=cols[4],
+        area=cols[5],
+        rent=cols[6],
+        management_fee=cols[7],
+        deposit=cols[8],
+        key_money=cols[9],
+        detail_url=detail_url,
+    )
+
+
 def extract_rooms(html: str) -> list[Room]:
     """HTML から空室情報のリストを抽出して返す。
 
@@ -138,56 +190,9 @@ def extract_rooms(html: str) -> list[Room]:
     rows = table.select("tr")[1:]
 
     for row in rows:
-        # 詳細ページへのリンク（href に "add=" を含む <a> タグ）を探す
-        # このリンクが存在しない行は部屋情報ではないとみなしてスキップする
-        detail_link = row.select_one('a[href*="add="]')
-        if detail_link is None:
-            continue
-
-        href = detail_link.get("href")
-        if not href:
-            continue
-
-        # 相対 URL（例: /bukken/?detail=1361&add=14831）を絶対 URL に変換する
-        detail_url = urljoin(BASE_URL, href)
-
-        # 例: /bukken/?detail=1361&add=14831
-        # URL の "add=" 以降の値を room_id として使う（部屋の一意識別子）
-        room_id = detail_url.split("add=")[-1].split("&")[0]
-
-        # 各 <td> のテキストを正規化してリストにする
-        cols = [normalize_text(td.get_text(" ", strip=True)) for td in row.select("td")]
-
-        # 想定カラム:
-        # 0: お気に入り
-        # 1: 画像
-        # 2: 部屋番号など
-        # 3: 階数
-        # 4: 間取り
-        # 5: 面積
-        # 6: 家賃
-        # 7: 管理費
-        # 8: 敷金
-        # 9: 礼金
-        # 10: パノラマ画像
-        # 11: 詳細
-        # カラム数が 10 未満の行はデータ不足とみなしてスキップする
-        if len(cols) < 10:
-            continue
-
-        rooms.append(
-            Room(
-                room_id=room_id,
-                floor=cols[3],
-                layout=cols[4],
-                area=cols[5],
-                rent=cols[6],
-                management_fee=cols[7],
-                deposit=cols[8],
-                key_money=cols[9],
-                detail_url=detail_url,
-            )
-        )
+        room = parse_room_row(row)
+        if room is not None:
+            rooms.append(room)
 
     return rooms
 
